@@ -1,0 +1,367 @@
+/* Base stylesheet for docs rendered by markup2html.
+   The markup2html generates doc also loads the github-markdown-css (scoped to .markdown-body)
+   and the highlight.js from a CDN, to add more styling when online. */
+
+:root {
+	--text: #1f2933;
+	--muted: #5b6b7a;
+	--border: #d9e1e8;
+	--bg: #ffffff;
+	--code-bg: #f4f6f8;
+	--th-bg: #eef2f5;
+	--accent: #0a5ad8;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	font-family: Charter, "Bitstream Charter", serif;
+	font-size: 14px;
+	line-height: 1.7;
+	color: var(--text);
+	background: var(--bg);
+}
+
+main.rfc {
+	max-width: 88ch;
+	margin: 0 auto;
+	padding: 3rem 1.5rem 5rem;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-weight: 600;
+	line-height: 1.25;
+}
+
+h1 {
+	font-size: 1.85em;
+	margin: 0 0 1.5rem;
+	padding-bottom: 0.5rem;
+	border-bottom: 3px solid var(--border);
+}
+
+h2 {
+	font-size: 1.35em;
+	margin: 2.5rem 0 1rem;
+	padding-bottom: 0.3rem;
+	border-bottom: 1px solid var(--border);
+}
+
+h3 {
+	font-size: 1.12em;
+	margin: 2rem 0 0.75rem;
+}
+
+h4 {
+	font-size: 1em;
+	margin: 1.5rem 0 0.5rem;
+}
+
+p {
+	margin: 0.8rem 0;
+}
+
+a {
+	color: var(--accent);
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+ul,
+ol {
+	padding-left: 1.4rem;
+	margin: 0.8rem 0;
+}
+
+li {
+	margin: 0.25rem 0;
+}
+
+code,
+kbd,
+samp,
+pre {
+	font-family: Consolas, "Liberation Mono", monospace;
+}
+
+code {
+	font-size: 0.9em;
+	background: var(--code-bg);
+	padding: 0.15em 0.4em;
+	border-radius: 4px;
+}
+
+pre {
+	background: var(--code-bg);
+	border: 1px solid var(--border);
+	border-radius: 6px;
+	padding: 0.7rem;
+	margin: 1.25rem 0;
+	overflow-x: auto;
+	line-height: 1.5;
+}
+
+pre.src,
+pre code {
+	background: none;
+	font-size: 0.85em;
+}
+
+kbd {
+	padding: 0.15em 0.4em;
+	font-size: 0.85em;
+	background: var(--code-bg);
+	border: 1px solid var(--border);
+	border-bottom-width: 2px;
+	border-radius: 4px;
+}
+
+/* Task lists: the checkbox replaces the bullet (marked emits bare
+   <input type=checkbox> inside <li>, without GitHub's task-list-item class) */
+li:has(> input[type="checkbox"]) {
+	list-style-type: none;
+}
+
+li > input[type="checkbox"] {
+	margin: 0 0.2em 0.25em -1.4rem;
+	vertical-align: middle;
+}
+
+/* Mermaid diagrams: markup2html converts ```mermaid fences / org src blocks to
+   <pre class="mermaid"> and loads mermaid to render them as SVG at runtime. */
+pre.mermaid {
+	display: flex;
+	justify-content: center;
+	background: none;
+	border: none;
+	font-family: inherit;
+}
+
+pre.mermaid svg {
+	max-width: 100%;
+	height: auto;
+}
+
+blockquote {
+	margin: 1rem 0;
+	padding: 0.4rem 1rem;
+	border-left: 4px solid var(--border);
+	color: var(--muted);
+}
+
+table {
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	border: 1px solid var(--border);
+	border-collapse: collapse;
+	margin: 1.25rem 0;
+	font-size: 0.92em;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+th,
+td {
+	border: 1px solid var(--border);
+	padding: 0.45rem 0.7rem;
+	text-align: left;
+	vertical-align: top;
+	overflow-wrap: break-word;
+}
+
+thead th {
+	background: var(--th-bg);
+}
+
+tbody tr:nth-child(even) {
+	background: #fbfcfd;
+}
+
+hr {
+	border: 0;
+	border-top: 1px solid var(--border);
+	margin: 1.5rem 0;
+}
+
+strong {
+	font-weight: 600;
+}
+
+img {
+	max-width: 100%;
+}
+
+/* Footnotes (markdown-it-footnote and marked-footnote / GFM markup shapes) */
+.footnotes,
+section[data-footnotes] {
+	font-size: 0.85em;
+	color: var(--muted);
+}
+
+.footnotes-sep {
+	margin: 2.5rem 0 1rem;
+}
+
+.footnotes-list {
+	padding-left: 1.2rem;
+}
+
+sup a,
+.footnote-ref {
+	font-size: 0.72em;
+	vertical-align: super;
+	line-height: 0;
+}
+
+.footnote-backref,
+.data-footnote-backref {
+	text-decoration: none;
+}
+
+/* Floating table of contents: pages with sections emit <nav id="toc"> and the
+   toggle button; a client-side script fills in the entries from the headings
+   and toggles body.toc-open. Open by default: on wide screens the panel takes
+   layout space on the right, on narrow screens it overlays the content. */
+#toc {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: 300px;
+	max-width: 85vw;
+	padding: 2.7rem 1.2rem 1.5rem;
+	overflow-y: auto;
+	background: var(--bg);
+	border-left: 1px solid var(--border);
+	transform: translateX(100%);
+	transition: transform 0.2s ease;
+	z-index: 10;
+}
+
+body.toc-open {
+	padding-right: 300px;
+}
+
+body.toc-open #toc {
+	transform: none;
+	box-shadow: -8px 0 24px rgba(31, 41, 51, 0.08);
+}
+
+#toc .toc-title {
+	font-weight: 600;
+	margin: 0 0 0.75rem;
+}
+
+#toc ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+#toc li {
+	margin: 0.15rem 0;
+}
+
+#toc .toc-h3 {
+	padding-left: 1rem;
+}
+
+#toc .toc-h4 {
+	padding-left: 2rem;
+}
+
+#toc a {
+	display: block;
+	color: var(--muted);
+	text-decoration: none;
+	padding: 0.15rem 0;
+	overflow-wrap: break-word;
+}
+
+#toc a:hover {
+	color: var(--accent);
+}
+
+#toc-toggle {
+	position: fixed;
+	top: 0.8rem;
+	right: 0.8rem;
+	z-index: 11;
+	border: 1px solid var(--border);
+	border-radius: 6px;
+	background: var(--bg);
+	color: var(--muted);
+	padding: 0.25rem 0.55rem;
+	font-size: 1rem;
+	line-height: 1;
+	cursor: pointer;
+}
+
+#toc-toggle:hover {
+	color: var(--accent);
+	border-color: var(--accent);
+}
+
+@media (max-width: 1099px) {
+	body.toc-open {
+		padding-right: 0;
+	}
+
+	body.toc-open #toc {
+		box-shadow: 0 0 32px rgba(31, 41, 51, 0.18);
+	}
+}
+
+@media print {
+	#toc,
+	#toc-toggle {
+		display: none;
+	}
+
+	body.toc-open {
+		padding-right: 0;
+	}
+}
+
+/* Responsive: narrow screens */
+@media (max-width: 640px) {
+	body {
+		font-size: 15.5px;
+	}
+
+	main.rfc {
+		padding: 2rem 1rem 3rem;
+	}
+
+	table {
+		font-size: 0.85em;
+	}
+}
+
+@media print {
+	main.rfc {
+		max-width: none;
+		padding: 0;
+	}
+
+	pre,
+	table {
+		overflow: visible;
+	}
+}
