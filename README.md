@@ -16,6 +16,10 @@ stylesheet, inlined into every page) and a pinned, vendored copy of
 marked (slimmed `marked.esm.js` — see below). The slimmed variant drops
 marked functions that markup2html never uses: 41.7 KB → 35.7 KB.
 
+## Demo
+
+See [readme-sample.pdf](./readme-sample.pdf) or [readme-sample.html](readme-sample.html), to see the result of rending this file into HTML or PDF (the pdf file is creaed from the html one).
+
 ## CLI
 
 ```sh
@@ -154,3 +158,52 @@ with sections get a floating table of contents, open by default.
 - CDN assets (github-markdown-css, highlight.js, mermaid): bump the
   version and its SRI hash together in `markup2html.mjs`
   (`curl -s URL | openssl dgst -sha384 -binary | openssl base64 -A`).
+
+## Samples
+
+```ts
+function bubbleSort(numbers: number[]): number[] {
+  // Create a copy to avoid mutating the original array
+  const arr = [...numbers];
+  const n = arr.length;
+
+  for (let i = 0; i < n - 1; i++) {
+    let swapped = false;
+
+    for (let j = 0; j < n - 1 - i; j++) {
+      if (arr[j] > arr[j + 1]) {
+        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+        swapped = true;
+      }
+    }
+
+    // Stop early if no swaps occurred in this pass
+    if (!swapped) break;
+  }
+
+  return arr;
+}
+```
+
+
+```mermaid
+flowchart LR
+  subgraph Client
+    UI[Web app]
+    Cache[(Local cache)]
+  end
+  subgraph Services
+    API[API gateway]
+    Auth[Auth service]
+    Orders[Order service]
+  end
+  subgraph Storage
+    DB[(Orders DB)]
+  end
+  UI --> API
+  UI --> Cache
+  API --> Auth
+  API --> Orders
+  Orders --> DB
+  Auth -. token .-> UI
+```

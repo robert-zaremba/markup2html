@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>markup2html</title>
+<style>
+/* Base stylesheet for docs rendered by markup2html.
+   The markup2html generates doc also loads the github-markdown-css (scoped to .markdown-body)
+   and the highlight.js from a CDN, to add more styling when online. */
+
+:root {
+	--text: #1f2933;
+	--muted: #5b6b7a;
+	--border: #d9e1e8;
+	--bg: #ffffff;
+	--code-bg: #f4f6f8;
+	--th-bg: #eef2f5;
+	--accent: #0a5ad8;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	font-family: Charter, "Bitstream Charter", serif;
+	font-size: 14px;
+	line-height: 1.7;
+	color: var(--text);
+	background: var(--bg);
+}
+
+main.rfc {
+	max-width: 88ch;
+	margin: 0 auto;
+	padding: 3rem 1.5rem 5rem;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-weight: 600;
+	line-height: 1.25;
+}
+
+h1 {
+	font-size: 1.85em;
+	margin: 0 0 1.5rem;
+	padding-bottom: 0.5rem;
+	border-bottom: 3px solid var(--border);
+}
+
+h2 {
+	font-size: 1.35em;
+	margin: 2.5rem 0 1rem;
+	padding-bottom: 0.3rem;
+	border-bottom: 1px solid var(--border);
+}
+
+h3 {
+	font-size: 1.12em;
+	margin: 2rem 0 0.75rem;
+}
+
+h4 {
+	font-size: 1em;
+	margin: 1.5rem 0 0.5rem;
+}
+
+p {
+	margin: 0.8rem 0;
+}
+
+a {
+	color: var(--accent);
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+ul,
+ol {
+	padding-left: 1.4rem;
+	margin: 0.8rem 0;
+}
+
+li {
+	margin: 0.25rem 0;
+}
+
+code,
+kbd,
+samp,
+pre {
+	font-family: Consolas, "Liberation Mono", monospace;
+}
+
+code {
+	font-size: 0.9em;
+	background: var(--code-bg);
+	padding: 0.15em 0.4em;
+	border-radius: 4px;
+}
+
+pre {
+	background: var(--code-bg);
+	border: 1px solid var(--border);
+	border-radius: 6px;
+	padding: 0.7rem;
+	margin: 1.25rem 0;
+	overflow-x: auto;
+	line-height: 1.5;
+}
+
+pre.src,
+pre code {
+	background: none;
+	font-size: 0.85em;
+}
+
+kbd {
+	padding: 0.15em 0.4em;
+	font-size: 0.85em;
+	background: var(--code-bg);
+	border: 1px solid var(--border);
+	border-bottom-width: 2px;
+	border-radius: 4px;
+}
+
+/* Task lists: the checkbox replaces the bullet (marked emits bare
+   <input type=checkbox> inside <li>, without GitHub's task-list-item class) */
+li:has(> input[type="checkbox"]) {
+	list-style-type: none;
+}
+
+li > input[type="checkbox"] {
+	margin: 0 0.2em 0.25em -1.4rem;
+	vertical-align: middle;
+}
+
+/* Mermaid diagrams: markup2html converts ```mermaid fences / org src blocks to
+   <pre class="mermaid"> and loads mermaid to render them as SVG at runtime. */
+pre.mermaid {
+	display: flex;
+	justify-content: center;
+	background: none;
+	border: none;
+	font-family: inherit;
+}
+
+pre.mermaid svg {
+	max-width: 100%;
+	height: auto;
+}
+
+blockquote {
+	margin: 1rem 0;
+	padding: 0.4rem 1rem;
+	border-left: 4px solid var(--border);
+	color: var(--muted);
+}
+
+table {
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	border: 1px solid var(--border);
+	border-collapse: collapse;
+	margin: 1.25rem 0;
+	font-size: 0.92em;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+th,
+td {
+	border: 1px solid var(--border);
+	padding: 0.45rem 0.7rem;
+	text-align: left;
+	vertical-align: top;
+	overflow-wrap: break-word;
+}
+
+thead th {
+	background: var(--th-bg);
+}
+
+tbody tr:nth-child(even) {
+	background: #fbfcfd;
+}
+
+hr {
+	border: 0;
+	border-top: 1px solid var(--border);
+	margin: 1.5rem 0;
+}
+
+strong {
+	font-weight: 600;
+}
+
+img {
+	max-width: 100%;
+}
+
+/* Footnotes (markdown-it-footnote and marked-footnote / GFM markup shapes) */
+.footnotes,
+section[data-footnotes] {
+	font-size: 0.85em;
+	color: var(--muted);
+}
+
+.footnotes-sep {
+	margin: 2.5rem 0 1rem;
+}
+
+.footnotes-list {
+	padding-left: 1.2rem;
+}
+
+sup a,
+.footnote-ref {
+	font-size: 0.72em;
+	vertical-align: super;
+	line-height: 0;
+}
+
+.footnote-backref,
+.data-footnote-backref {
+	text-decoration: none;
+}
+
+/* Floating table of contents: pages with sections emit <nav id="toc"> and the
+   toggle button; a client-side script fills in the entries from the headings
+   and toggles body.toc-open. Open by default: on wide screens the panel takes
+   layout space on the right, on narrow screens it overlays the content. */
+#toc {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: 300px;
+	max-width: 85vw;
+	padding: 2.7rem 1.2rem 1.5rem;
+	overflow-y: auto;
+	background: var(--bg);
+	border-left: 1px solid var(--border);
+	transform: translateX(100%);
+	transition: transform 0.2s ease;
+	z-index: 10;
+}
+
+body.toc-open {
+	padding-right: 300px;
+}
+
+body.toc-open #toc {
+	transform: none;
+	box-shadow: -8px 0 24px rgba(31, 41, 51, 0.08);
+}
+
+#toc .toc-title {
+	font-weight: 600;
+	margin: 0 0 0.75rem;
+}
+
+#toc ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+#toc li {
+	margin: 0.15rem 0;
+}
+
+#toc .toc-h3 {
+	padding-left: 1rem;
+}
+
+#toc .toc-h4 {
+	padding-left: 2rem;
+}
+
+#toc a {
+	display: block;
+	color: var(--muted);
+	text-decoration: none;
+	padding: 0.15rem 0;
+	overflow-wrap: break-word;
+}
+
+#toc a:hover {
+	color: var(--accent);
+}
+
+#toc-toggle {
+	position: fixed;
+	top: 0.8rem;
+	right: 0.8rem;
+	z-index: 11;
+	border: 1px solid var(--border);
+	border-radius: 6px;
+	background: var(--bg);
+	color: var(--muted);
+	padding: 0.25rem 0.55rem;
+	font-size: 1rem;
+	line-height: 1;
+	cursor: pointer;
+}
+
+#toc-toggle:hover {
+	color: var(--accent);
+	border-color: var(--accent);
+}
+
+@media (max-width: 1099px) {
+	body.toc-open {
+		padding-right: 0;
+	}
+
+	body.toc-open #toc {
+		box-shadow: 0 0 32px rgba(31, 41, 51, 0.18);
+	}
+}
+
+@media print {
+	#toc,
+	#toc-toggle {
+		display: none;
+	}
+
+	body.toc-open {
+		padding-right: 0;
+	}
+}
+
+/* Responsive: narrow screens */
+@media (max-width: 640px) {
+	body {
+		font-size: 15.5px;
+	}
+
+	main.rfc {
+		padding: 2rem 1rem 3rem;
+	}
+
+	table {
+		font-size: 0.85em;
+	}
+}
+
+@media print {
+	main.rfc {
+		max-width: none;
+		padding: 0;
+	}
+
+	pre,
+	table {
+		overflow: visible;
+	}
+}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.9.0/github-markdown-light.min.css" integrity="sha384-3eJN7MnSPucsOdiaSfRFVznUcc1JUEkgzZT4He1EMOFayD+GagtU7AVsHkRyRuyd" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.12.0/styles/github.min.css" integrity="sha384-eFTL69TLRZTkNfYZOLM+G04821K1qZao/4QLJbet1pP4tcF+fdXq/9CdqAbWRl/L" crossorigin="anonymous">
+</head>
+<body class="toc-open">
+<nav id="toc" aria-label="Table of contents"><div class="toc-title">Contents</div><ul></ul></nav>
+<button id="toc-toggle" type="button" aria-controls="toc" aria-expanded="true">✕</button>
+<main class="rfc markdown-body">
+<h1>markup2html</h1>
+<p>Render Markdown (<code>.md</code>) and Org (<code>.org</code>) documents to standalone,
+RFC-styled HTML pages.</p>
+<ul>
+<li><strong><code>markup2html.mjs</code></strong> — the renderer and CLI (replaces the former
+<code>contrib/markup2html.sh</code>). Handles conversion (marked for Markdown,
+batch Emacs for Org from the CLI, in-process Org export from Emacs)
+and the full HTML assembly. Runs on bun or node.</li>
+<li><strong><code>markup2html.el</code></strong> — thin Emacs wiring around the same script; all
+rendering happens in the script.</li>
+<li><strong><code>slim-marked.mjs</code></strong> — maintenance script for the vendored marked.</li>
+</ul>
+<p>The package is self-contained: it ships <code>rfc-style.css</code> (the base
+stylesheet, inlined into every page) and a pinned, vendored copy of
+marked (slimmed <code>marked.esm.js</code> — see below). The slimmed variant drops
+marked functions that markup2html never uses: 41.7 KB → 35.7 KB.</p>
+<h2>Demo</h2>
+<p>See <a href="./readme-sample.pdf">readme-sample.pdf</a> or <a href="readme-sample.html">readme-sample.html</a>, to see the result of rending this file into HTML or PDF (the pdf file is creaed from the html one).</p>
+<h2>CLI</h2>
+<pre><code class="language-sh">bun markup2html.mjs  [-o OUTPUT] [--css FILE] &lt;input.md | input.org&gt;
+# or: node markup2html.mjs ...   (both runtimes work)
+</code></pre>
+<p>Writes the page to <strong>stdout</strong>; <code>-o OUTPUT</code> writes it to a file instead
+(<code>-o -</code> is the same as stdout). <code>--css</code> replaces the packaged
+stylesheet. Requirements: bun or node on PATH, and emacs on PATH for
+<code>.org</code> inputs.</p>
+<h2>The <code>--html</code> mode</h2>
+<p>In <code>--html</code> mode the script skips markdown/org conversion entirely: it
+reads a ready-made HTML <strong>body fragment</strong> from stdin and wraps it in the
+page shell — <code>&lt;head&gt;</code> with the inlined stylesheet and CDN layer, the
+title, the meta table, the <code>&lt;main class=&quot;rfc markdown-body&quot;&gt;</code> wrapper,
+and the same conditional enhancers as file mode (mermaid loader,
+highlight.js, floating TOC — each only when the body contains one).</p>
+<pre><code class="language-sh">markup2html.mjs --html [--title TITLE] [--meta &quot;KEY: VAL&quot;]... [--h1] \
+    [-o OUTPUT] [--css FILE] &lt; body.html
+</code></pre>
+<p>Behavior:</p>
+<ul>
+<li>The input is a body <strong>fragment</strong>, not a complete document — no
+<code>&lt;html&gt;</code>, <code>&lt;head&gt;</code> or <code>&lt;body&gt;</code>; the shell provides them.</li>
+<li><code>--title</code> sets the <code>&lt;title&gt;</code> (HTML-escaped). Without it the title is
+empty.</li>
+<li><code>--h1</code> additionally emits the title as the page&#39;s <code>&lt;h1&gt;</code>. Org bodies
+from <code>org-export-as</code> don&#39;t contain a heading, so markup2html.el passes
+this flag; when the fragment already carries its own <code>&lt;h1&gt;</code>, omit it.</li>
+<li>Each <code>--meta &quot;KEY: VAL&quot;</code> adds one row to the key/value table at the
+top of the page (the first colon splits; leading spaces of the value
+are stripped). Values are inserted as-is apart from HTML escaping —
+FILETAGS-style <code>:a:b:</code> values must be transformed before passing.</li>
+<li>The enhancer scan runs on the fragment: <code>language-mermaid</code> /
+<code>src-mermaid</code> in the body pulls in the mermaid loader, a
+<code>&lt;code class=&quot;language-…&quot;&gt;</code> block pulls in highlight.js, and an
+<code>h2</code>–<code>h4</code> pulls in the floating TOC. A fragment without any of these
+produces a script-free page.</li>
+<li>Without <code>-o</code> the page goes to stdout; <code>-o -</code> is the same, so the mode
+doubles as a stdin→stdout filter. <code>--css</code> swaps the inlined
+stylesheet.</li>
+</ul>
+<p>Who uses it:</p>
+<ul>
+<li><strong>markup2html.el</strong> — exports the Org buffer in-process (<code>org-export-as</code>,
+body-only, ~5 ms) and pipes it here with <code>--title</code>, <code>--h1</code> and one
+<code>--meta</code> per leading <code>#+KEYWORD:</code> line. One bun process instead of a
+batch-Emacs roundtrip (~25 ms vs ~300 ms per export).</li>
+<li>Anything else that produces an HTML fragment and wants the RFC shell —
+the bytes are identical to what the file modes emit for the same
+document.</li>
+</ul>
+<h2>Emacs</h2>
+<p>Requires Emacs 30.1+ (the Elisp module uses modern APIs like
+<code>string-lines</code> and <code>string-replace</code>).</p>
+<pre><code class="language-elisp">(use-package markup2html
+  :load-path &quot;/path/to/markup2html&quot;)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>markup2html-export</code></td>
+<td>Render the visited file, write <code>&lt;stem&gt;.html</code></td>
+</tr>
+<tr>
+<td><code>markup2html-export-and-preview</code></td>
+<td>Export, then open the result in a browser</td>
+</tr>
+<tr>
+<td><code>markup2html-preview-exported</code></td>
+<td>Open the exported <code>&lt;stem&gt;.html</code> (error if absent)</td>
+</tr>
+<tr>
+<td><code>markup2html-command</code></td>
+<td><code>markdown-command</code>-compatible hook</td>
+</tr>
+</tbody></table>
+<p>All commands work in <code>markdown-mode</code>, <code>gfm-mode</code>, <code>markdown-ts-mode</code>
+and <code>org-mode</code> buffers alike. Markdown buffers are rendered as a whole
+from the visited file (region arguments are ignored; save first to
+include your edits); Org buffers are exported in-process, unsaved
+edits included.</p>
+<h3>markdown-mode integration</h3>
+<ul>
+<li><strong>Runtime selection</strong>: <code>markup2html-js-runtime</code> — <code>&#39;bun</code> (default) or
+<code>&#39;node</code> (set via <code>setopt</code>).</li>
+<li><strong>Render and preview</strong> route markdown-mode&#39;s native commands through
+markup2html:</li>
+</ul>
+<pre><code class="language-elisp">(setopt markdown-command #&#39;markup2html-command)
+</code></pre>
+<p>With that, <code>C-c C-c m</code> compiles into the <code>*Markdown output*</code> buffer
+(the page is streamed from the renderer&#39;s stdout — no <code>.html</code> file is
+written next to the source), <code>C-c C-c p</code> previews in the browser, and
+<code>C-c C-c e</code> writes the HTML file next to the source.</p>
+<ul>
+<li><strong>Open the rendered page externally</strong> on demand, mirroring
+markdown-mode&#39;s <code>markdown-open-command</code> (bound to <code>C-c C-c o</code>):</li>
+</ul>
+<pre><code class="language-elisp">(setopt markdown-open-command
+        (lambda ()
+          (browse-url-of-file (markup2html-export))))
+</code></pre>
+<p>This repo&#39;s <code>.dir-locals.el</code> already sets <code>markdown-command</code>
+buffer-locally for <code>.md</code> files.</p>
+<ul>
+<li><strong>Org integration</strong>: Org buffers are exported to body-only HTML
+<strong>in-process</strong> (<code>org-export-as</code>, ~5 ms in a loaded session, unsaved
+edits included) and piped to the script&#39;s stdin (<code>--html</code> assembly
+mode) — no batch-Emacs roundtrip, roughly 25 ms total vs ~300 ms for
+spawning a throwaway emacs per export. The export dispatcher entry
+<code>C-c C-e R</code> (<code>r</code> = write the file, <code>o</code> = write and open) runs the
+same commands.</li>
+</ul>
+<h2>Output</h2>
+<p>Standalone page with the base stylesheet inlined; github-markdown-css
+and the highlight.js theme layer on top via CDN links pinned with SRI
+hashes (no theme switching; offline the page keeps the base look).
+Pages with mermaid diagrams, code fences or sections load the
+corresponding client-side enhancers; everything else stays
+script-free. Documents with YAML front matter (md) or leading
+<code>#+KEYWORD:</code> lines (org) render it as a key/value table; documents
+with sections get a floating table of contents, open by default.</p>
+<h2>Upgrading pinned assets</h2>
+<ul>
+<li><code>marked</code>: download the new <code>lib/marked.esm.js</code> over the vendored
+<code>marked.esm.js</code>, then run <code>bun slim-marked.mjs marked.esm.js</code>. Every
+cut in the slim script asserts its markers, so an upstream restructure
+fails loudly instead of silently corrupting the file; re-render a
+document and diff to confirm the output is still what you expect.</li>
+<li>CDN assets (github-markdown-css, highlight.js, mermaid): bump the
+version and its SRI hash together in <code>markup2html.mjs</code>
+(<code>curl -s URL | openssl dgst -sha384 -binary | openssl base64 -A</code>).</li>
+</ul>
+<h2>Samples</h2>
+<pre><code class="language-ts">function bubbleSort(numbers: number[]): number[] {
+  // Create a copy to avoid mutating the original array
+  const arr = [...numbers];
+  const n = arr.length;
+
+  for (let i = 0; i &lt; n - 1; i++) {
+    let swapped = false;
+
+    for (let j = 0; j &lt; n - 1 - i; j++) {
+      if (arr[j] &gt; arr[j + 1]) {
+        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+        swapped = true;
+      }
+    }
+
+    // Stop early if no swaps occurred in this pass
+    if (!swapped) break;
+  }
+
+  return arr;
+}
+</code></pre>
+<pre><code class="language-mermaid">flowchart LR
+  subgraph Client
+    UI[Web app]
+    Cache[(Local cache)]
+  end
+  subgraph Services
+    API[API gateway]
+    Auth[Auth service]
+    Orders[Order service]
+  end
+  subgraph Storage
+    DB[(Orders DB)]
+  end
+  UI --&gt; API
+  UI --&gt; Cache
+  API --&gt; Auth
+  API --&gt; Orders
+  Orders --&gt; DB
+  Auth -. token .-&gt; UI
+</code></pre>
+
+</main>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@12/dist/mermaid.esm.min.mjs";
+
+// Normalize to the <pre class="mermaid"> shape from the docs' recommended setup:
+// md fences produce <pre><code class="language-mermaid">, org src blocks <pre class="src src-mermaid">.
+const normalize = (pre) => {
+	pre.classList.add("mermaid");
+	for (const code of pre.querySelectorAll("code")) code.replaceWith(...code.childNodes);
+};
+for (const code of document.querySelectorAll("pre > code.language-mermaid")) normalize(code.parentElement);
+for (const pre of document.querySelectorAll("pre.src-mermaid")) normalize(pre);
+
+mermaid.initialize({
+	startOnLoad: false,
+	securityLevel: "loose",
+});
+await mermaid.run({ querySelector: "pre.mermaid" });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.12.0/highlight.min.js" integrity="sha384-wjfDDhOPPdjtva8vWBhWeVprSpmxisEu5aYT3q1JyACqXpdKpo3PWZTMVq24MBix" crossorigin="anonymous"></script>
+<script>
+for (const code of document.querySelectorAll("pre > code[class*=language-]:not(.language-mermaid)")) {
+	hljs.highlightElement(code);
+}
+</script>
+<script>
+(() => {
+	const toc = document.getElementById("toc");
+	if (!toc) return;
+	const list = toc.querySelector("ul");
+	const slugs = new Set();
+	const slug = (t) => {
+		let s = t.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-");
+		if (s === "") s = "section";
+		let u = s;
+		let n = 1;
+		while (slugs.has(u)) u = s + "-" + n++;
+		slugs.add(u);
+		return u;
+	};
+	for (const h of document.querySelectorAll("main.rfc h2, main.rfc h3, main.rfc h4")) {
+		if (!h.id) h.id = slug(h.textContent);
+		const a = document.createElement("a");
+		a.href = "#" + h.id;
+		a.textContent = h.textContent;
+		const li = document.createElement("li");
+		li.className = "toc-h" + h.tagName[1];
+		li.appendChild(a);
+		list.appendChild(li);
+	}
+	const btn = document.getElementById("toc-toggle");
+	const sync = () => {
+		const open = document.body.classList.contains("toc-open");
+		btn.textContent = open ? "✕" : "☰";
+		btn.setAttribute("aria-expanded", open ? "true" : "false");
+	};
+	btn.addEventListener("click", () => {
+		document.body.classList.toggle("toc-open");
+		sync();
+	});
+	sync();
+})();
+</script>
+</body>
+</html>
