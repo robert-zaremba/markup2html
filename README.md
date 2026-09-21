@@ -32,7 +32,7 @@ Writes the page to **stdout**; `-o OUTPUT` writes it to a file instead
 stylesheet. Requirements: bun or node on PATH, and emacs on PATH for
 `.org` inputs.
 
-## The `--html` mode
+### The `--html` mode
 
 In `--html` mode the script skips markdown/org conversion entirely: it
 reads a ready-made HTML **body fragment** from stdin and wraps it in the
@@ -46,7 +46,7 @@ markup2html.mjs --html [--title TITLE] [--meta "KEY: VAL"]... [--h1] \
     [-o OUTPUT] [--css FILE] < body.html
 ```
 
-Behavior:
+### Behavior
 
 - The input is a body **fragment**, not a complete document — no
   `<html>`, `<head>` or `<body>`; the shell provides them.
@@ -70,10 +70,8 @@ Behavior:
 
 Who uses it:
 
-- **markup2html.el** — exports the Org buffer in-process (`org-export-as`,
-  body-only, ~5 ms) and pipes it here with `--title`, `--h1` and one
-  `--meta` per leading `#+KEYWORD:` line. One bun process instead of a
-  batch-Emacs roundtrip (~25 ms vs ~300 ms per export).
+- **markup2html.el** — exports the Org buffer in-process and pipes it here
+  with `--title`, `--h1` and one `--meta` per leading `#+KEYWORD:` line.
 - Anything else that produces an HTML fragment and wants the RFC shell —
   the bytes are identical to what the file modes emit for the same
   document.
@@ -83,17 +81,12 @@ Who uses it:
 Requires Emacs 30.1+ (the Elisp module uses modern APIs like
 `string-lines` and `string-replace`).
 
-```elisp
-(use-package markup2html
-  :load-path "/path/to/markup2html")
-```
-
-| Command                       | What it does                                       |
-| ----------------------------- | -------------------------------------------------- |
-| `markup2html-export`             | Render the visited file, write `<stem>.html`       |
-| `markup2html-export-and-preview` | Export, then open the result in a browser          |
-| `markup2html-preview-exported`   | Open the exported `<stem>.html` (error if absent)  |
-| `markup2html-command`            | `markdown-command`-compatible hook                 |
+| Command                          | What it does                                      |
+| -------------------------------- | ------------------------------------------------- |
+| `markup2html-export`             | Render the visited file, write `<stem>.html`      |
+| `markup2html-export-and-preview` | Export, then open the result in a browser         |
+| `markup2html-preview-exported`   | Open the exported `<stem>.html` (error if absent) |
+| `markup2html-command`            | `markdown-command`-compatible hook                |
 
 All commands work in `markdown-mode`, `gfm-mode`, `markdown-ts-mode`
 and `org-mode` buffers alike. Markdown buffers are rendered as a whole
@@ -101,21 +94,51 @@ from the visited file (region arguments are ignored; save first to
 include your edits); Org buffers are exported in-process, unsaved
 edits included.
 
+### Doomemacs setup
+
+```elisp
+;; in package.el
+(package! markup2html
+  :recipe (:host github :repo "robert-zaremba/markup2html"))
+
+;;
+;; in config.el
+;;
+
+(with-eval-after-load 'org
+  (require 'markup2html) ; this auto-registers the C-c C-e r dispatcher entry
+  (define-key org-mode-map (kbd "C-c c p") #'markup2html-export-and-preview)
+  (define-key markdown-mode-map (kbd "C-c c v") #'markup2html-preview-exported))
+
+;; if you use markdow-mode
+(with-eval-after-load 'markdown-ts-mode
+  (require 'markup2html)
+  (setopt markdown-command #'markup2html-command)  ;; native markdow compile command, not available in markdow-ts-mode
+  (define-key markdown-mode-map (kbd "C-c c p") #'markup2html-export-and-preview)
+  (define-key markdown-mode-map (kbd "C-c c v") #'markup2html-preview-exported))
+
+;; if you use the traditional markdown-mode
+```
+
+### Dev setup
+
+Clone the repository and:
+
+```elisp
+(use-package markup2html
+  :load-path "/path/to/markup2html")
+```
+
 ### markdown-mode integration
 
 - **Runtime selection**: `markup2html-js-runtime` — `'bun` (default) or
   `'node` (set via `setopt`).
 - **Render and preview** route markdown-mode's native commands through
-  markup2html:
+  markup2html.
 
-```elisp
-(setopt markdown-command #'markup2html-command)
-```
-
-With that, `C-c C-c m` compiles into the `*Markdown output*` buffer
-(the page is streamed from the renderer's stdout — no `.html` file is
-written next to the source), `C-c C-c p` previews in the browser, and
-`C-c C-c e` writes the HTML file next to the source.
+In `markdow-mode` (not available in `markdow-ts-mode`) we can set the `markdown-command` and use it
+in `markdow-compile`: `C-c C-c m` compiles into the `*Markdown output*` buffer
+, `C-c C-c p` previews in the browser, and `C-c C-c e` writes the HTML file next to the source.
 
 - **Open the rendered page externally** on demand, mirroring
   markdown-mode's `markdown-open-command` (bound to `C-c C-c o`):
@@ -126,16 +149,16 @@ written next to the source), `C-c C-c p` previews in the browser, and
           (browse-url-of-file (markup2html-export))))
 ```
 
-This repo's `.dir-locals.el` already sets `markdown-command`
-buffer-locally for `.md` files.
+### org-mode integration
 
-- **Org integration**: Org buffers are exported to body-only HTML
-  **in-process** (`org-export-as`, ~5 ms in a loaded session, unsaved
-  edits included) and piped to the script's stdin (`--html` assembly
-  mode) — no batch-Emacs roundtrip, roughly 25 ms total vs ~300 ms for
-  spawning a throwaway emacs per export. The export dispatcher entry
-  `C-c C-e R` (`r` = write the file, `o` = write and open) runs the
-  same commands.
+Org buffers are exported to body-only HTML **in-process** (`org-export-as`)
+and piped to the script's stdin (`--html` assembly mode).
+
+This wires natively with the org-mode dispatcher (`org-export-define-derived-backend`),
+invoked through `C-c C-e r`:
+
+- `r` = export (and write) to html
+- `o` = export and open.
 
 ## Output
 
@@ -184,7 +207,6 @@ function bubbleSort(numbers: number[]): number[] {
   return arr;
 }
 ```
-
 
 ```mermaid
 flowchart LR

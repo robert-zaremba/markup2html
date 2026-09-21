@@ -223,7 +223,7 @@ whole files.  The rendered page arrives on the renderer's stdout
   output-buffer)
 
 
-;; Org export dispatcher entry (C-c C-e R). The backend only provides
+;; Org export dispatcher entry (C-c C-e r). The backend only provides
 ;; the menu; the actions run the commands above and it never transcodes.
 
 (defun markup2html--dispatch-export (&rest _)
@@ -236,7 +236,7 @@ whole files.  The rendered page arrives on the renderer's stdout
 
 (org-export-define-derived-backend 'markup2html 'html
   :menu-entry
-  '(?R "Export to RFC-styled HTML (markup2html)"
+  '(?r "Export to RFC-styled HTML (markup2html)"
     ((?r "As HTML file" markup2html--dispatch-export)
      (?o "As HTML file and open" markup2html--dispatch-open))))
 
